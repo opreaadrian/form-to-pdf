@@ -4,7 +4,9 @@
   "description": "A service which compiles templates with form data and creates PDF documents",
   "main": "dist/app.js",
   "scripts": {
+    "install-hooks": "scripts/install_hooks.js",
     "test": "./node_modules/.bin/mocha --reporter min --recursive",
+    "test:watch": "npm t -- -w",
     "coverage": "./node_modules/.bin/nyc --reporter=lcov --require babel-register npm t",
     "build": "./node_modules/.bin/babel src -d dist"
   },
@@ -25,7 +27,8 @@
     "babel-register": "^6.9.0",
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
-    "nyc": "^6.4.4"
+    "nyc": "^6.4.4",
+    "vinyl-fs": "^2.4.3"
   },
   "dependencies": {
     "phantomjs-prebuilt": "^2.1.7",

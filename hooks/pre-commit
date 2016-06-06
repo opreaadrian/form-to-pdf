@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const exec = require('child_process').exec;
+
+const GIT_DIFF_COMMAND = 'git diff-index --name-only --diff-filter=ACMR HEAD -- *.js **/*.js';
+exec(GIT_DIFF_COMMAND, (error, data) => {
+  if (error) {
+    throw error;
+  }
+  /*
+  Index needs to be strictly greater than 0
+  There cannot be files named ".js", they need to have at least one letter
+  before the extension, as in "1.js, a.js"
+   */
+  if (data.trim().indexOf('.js') > 0) {
+    const TEST_COMMAND = 'npm test';
+    exec(TEST_COMMAND, (error, stdout, stderr) => {
+      if (error) {
+        process.stdout.write(stdout);
+        process.stderr.write(stderr);
+        process.exit(1);
+      }
+      process.exit(0);
+    });
+  }
+});
