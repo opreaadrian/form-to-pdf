@@ -1,0 +1,31 @@
+{
+  "name": "form-to-pdf",
+  "version": "1.0.0",
+  "description": "A service which compiles templates with form data and creates PDF documents",
+  "main": "dist/app.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter min --recursive",
+    "coverage": "./node_modules/.bin/nyc --reporter=lcov --require babel-register npm t",
+    "build": "./node_modules/.bin/babel src -d dist --source-maps"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opreaadrian/form-to-pdf.git"
+  },
+  "author": "Adrian Oprea <adrian@codesi.nz>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/opreaadrian/form-to-pdf/issues"
+  },
+  "homepage": "https://github.com/opreaadrian/form-to-pdf#readme",
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-register": "^6.9.0",
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "nyc": "^6.4.4"
+  },
+  "dependencies": {
+    "winston": "^2.2.0"
+  }
+}
