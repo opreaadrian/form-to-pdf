@@ -1,7 +1,12 @@
 import wkhtmltopdf from 'wkhtmltopdf';
 import fs from 'fs';
-import http from 'http';
+import express from 'express';
 import querystring from 'querystring';
+import pug from 'pug';
+import bodyParser from 'body-parser';
+import uuid from 'uuid';
+
+const logger = require('morgan');
 
 const TEMPLATES = {
   'document': 'document.html'
@@ -19,42 +24,30 @@ const compileData = (data, template) => {
 };
 
 const generateDocument = (contents) => {
+  const documentPath = `./downloads/${uuid.v4()}.pdf`;
   wkhtmltopdf(contents, { viewportSize: '1980x1600', pageSize: 'letter' })
-  .pipe(fs.createWriteStream('some-pdf-document.pdf'));
+  .pipe(fs.createWriteStream(documentPath));
+  return documentPath;
 };
 
-let server = http.createServer((req, res) => {
-  switch(req.url) {
-    case '/':
-      res.writeHead(200, {
-        'Content-Type': 'text/html'
-      });
-      res.write(`
-      <form action="/generate" method="POST">
-        <p>
-          <input type="text" id="url" name="url" placeholder="https://example.com">
-        </p>
-        <p>
-          <input type="text" id="other" name="other" placeholder="Other">
-        </p>
-        <button type="submit">Generate</button>
-      </form>
-      `);
-      res.end();
-      break;
-    case '/generate':
-      req.on('data', (chunk) => {
-        res.writeHead(200);
-        const body = chunk.toString();
-        const data = querystring.parse(body);
-        const template = TEMPLATES.document;
-        generateDocument(compileData(data, `./templates/${template}`));
-        res.end();
-      })
-      break;
-  }
-});
+const generatePdf = (req, res) => {
+  const body = req.body;
+  const template = TEMPLATES.document;
+  const pdfUrl = generateDocument(compileData(body, `./templates/${template}`));
+  res.json({
+    url : `http://localhost:8080/${pdfUrl.slice(1)}`
+  });
+};
 
-server.listen(process.env.PORT || 8080, 'localhost', () => {
+const app = express();
+app.engine('pug', pug.__express);
+app.set('view engine', 'pug');
+app.use(bodyParser.json());
+app.use(logger('combined'));
+app.post('/generate', generatePdf);
+app.get('/download/:document', (req, res) => {
+  res.download(`${__dirname}/../downloads/${req.params.document}`);
+});
+app.listen(process.env.PORT || 8080, 'localhost', () => {
   console.log('Server started');
 });
