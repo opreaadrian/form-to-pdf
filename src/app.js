@@ -31,9 +31,9 @@ const generateDocument = (contents) => {
 };
 
 const generatePdf = (req, res) => {
-  const body = req.body;
-  const template = TEMPLATES.document;
-  const pdfUrl = generateDocument(compileData(body, `./templates/${template}`));
+  const formData = req.body.formData;
+  const template = req.body.templateContents;
+  const pdfUrl = generateDocument(compileData(formData, `./templates/${template}`));
   res.json({
     url: `http://localhost:8080/${pdfUrl.slice(1)}`
   });
