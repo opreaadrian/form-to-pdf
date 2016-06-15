@@ -15,7 +15,7 @@ const TEMPLATES = {
 const compileData = (data, template) => {
   let templateContents = fs.readFileSync(template, 'utf-8');
 
-  const compileTemplate = (accumulator, current, index, array) => {
+  const compileTemplate = (accumulator, current) => {
     return accumulator.replace(`{{ ${current} }}`, data[current]);
   };
 
@@ -35,8 +35,19 @@ const generatePdf = (req, res) => {
   const template = TEMPLATES.document;
   const pdfUrl = generateDocument(compileData(body, `./templates/${template}`));
   res.json({
-    url : `http://localhost:8080/${pdfUrl.slice(1)}`
+    url: `http://localhost:8080/${pdfUrl.slice(1)}`
   });
+};
+
+const downloadDocument = (req, res) => {
+  const RESOURCE_PATH = `${__dirname}/../downloads/${req.params.document}`;
+  fs.stat(RESOURCE_PATH, (error) => {
+    if (error) {
+      throw error;
+    }
+
+    res.download(RESOURCE_PATH);
+  })
 };
 
 const app = express();
@@ -45,9 +56,7 @@ app.set('view engine', 'pug');
 app.use(bodyParser.json());
 app.use(logger('combined'));
 app.post('/generate', generatePdf);
-app.get('/download/:document', (req, res) => {
-  res.download(`${__dirname}/../downloads/${req.params.document}`);
-});
+app.get('/download/:document', downloadDocument);
 app.listen(process.env.PORT || 8080, 'localhost', () => {
   console.log('Server started');
 });
